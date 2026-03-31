@@ -125,7 +125,12 @@ export async function buildMeiliQueries(query: string, mainPackageVersion: strin
 	for (const [dependencyPackageIdentifier, dependencyVersion] of Object.entries(dependencies)) {
 		if (typeof dependencyVersion !== 'string') continue;
 
-		const packageName = dependencyPackageIdentifier.split('/')[1];
+		const nameParts = dependencyPackageIdentifier.split('/');
+		const prefix = nameParts[0];
+
+		if (prefix !== '@discordjs') continue;
+
+		const packageName = nameParts[1];
 		const parts = [...packageName.split('.'), meiliVersion(dependencyVersion)];
 		const indexUid = parts.join('-');
 
