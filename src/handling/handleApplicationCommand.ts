@@ -16,7 +16,7 @@ import type { Tag } from '../functions/tag.js';
 import { showTag, reloadTags } from '../functions/tag.js';
 import { testTag } from '../functions/testtag.js';
 import { DiscordDocsCommand } from '../interactions/discorddocs.js';
-import type { DiscordHelpdeskCommand } from '../interactions/discordhelpdesk.js';
+import { DiscordHelpdeskCommand } from '../interactions/discordhelpdesk.js';
 import { DTypesCommand } from '../interactions/discordtypes.js';
 import { buildDocsCommand } from '../interactions/docs.js';
 import { GuideCommand } from '../interactions/guide.js';
@@ -33,6 +33,7 @@ import { prepareErrorResponse, prepareResponse } from '../util/respond.js';
 
 const staticGlobalCommands = [
 	DiscordDocsCommand,
+	DiscordHelpdeskCommand,
 	GuideCommand,
 	MdnCommand,
 	NodeCommand,
