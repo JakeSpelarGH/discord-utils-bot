@@ -4,6 +4,7 @@ import { DiscordHelpdeskCommand } from '../interactions/discordhelpdesk.js';
 import { DTypesCommand } from '../interactions/discordtypes.js';
 import { DocsCommand } from '../interactions/docs.js';
 import { GuideCommand } from '../interactions/guide.js';
+import { HaikuCommand } from '../interactions/haiku.js';
 import { MdnCommand } from '../interactions/mdn.js';
 import { NodeCommand } from '../interactions/node.js';
 import { TagCommand } from '../interactions/tag.js';
@@ -19,6 +20,7 @@ const staticGlobalCommands = [
 	TestTagCommand,
 	DTypesCommand,
 	DiscordHelpdeskCommand,
+	HaikuCommand,
 ];
 
 void deploy([...staticGlobalCommands, DocsCommand]);

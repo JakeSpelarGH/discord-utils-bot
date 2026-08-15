@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { blockQuote } from '@discordjs/builders';
 import type { Collection } from '@discordjs/collection';
 import * as TOML from '@ltd/j-toml';
 import type { Response } from 'polka';
@@ -22,8 +23,8 @@ export type TagSimilarityEntry = {
 	word: string;
 };
 
-export async function loadTags(tagCache: Collection<string, Tag>, remote = false) {
-	const tagFileNames = readdirp(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'tags'), {
+export async function loadTags(tagCache: Collection<string, Tag>, folder = 'tags', remote = false) {
+	const tagFileNames = readdirp(join(dirname(fileURLToPath(import.meta.url)), '..', '..', folder), {
 		fileFilter: '*.toml',
 	});
 
@@ -51,20 +52,31 @@ export async function loadTags(tagCache: Collection<string, Tag>, remote = false
 export function findTag(tagCache: Collection<string, Tag>, query: string): string | null {
 	const cleanQuery = query.replaceAll(/\s+/g, '-');
 	const tag = tagCache.get(cleanQuery) ?? tagCache.find((tag) => tag.keywords.includes(cleanQuery));
+
 	if (!tag) return null;
 	return tag.content;
 }
 
-export async function reloadTags(res: Response, tagCache: Collection<string, Tag>, remote = true) {
+export async function reloadTags(
+	res: Response,
+	tagCache: Collection<string, Tag>,
+	haikuCache: Collection<string, Tag>,
+	remote = true,
+) {
 	const prev = tagCache.size;
+	const prevH = haikuCache.size;
 	tagCache.clear();
+	haikuCache.clear();
 	try {
-		await loadTags(tagCache, remote);
+		await loadTags(tagCache, 'tags', remote);
+		await loadTags(haikuCache, 'haikus', remote);
+
 		prepareResponse(
 			res,
 			[
 				`${PREFIX_SUCCESS} **Tags have fully reloaded ${remote ? '(remote)' : '(local)'}!**`,
 				`Tag cache size has changed from ${prev} to ${tagCache.size}.`,
+				`Haiku cache size has changed from ${prevH} to ${haikuCache.size}.`,
 			].join('\n'),
 			{ ephemeral: true },
 		);
@@ -83,6 +95,7 @@ export function showTag(
 	res: Response,
 	query: string,
 	tagCache: Collection<string, Tag>,
+	kind = 'tag',
 	user?: string,
 	ephemeral?: boolean,
 ): Response {
@@ -90,7 +103,10 @@ export function showTag(
 	const content = findTag(tagCache, trimmedQuery);
 
 	if (content) {
-		prepareResponse(res, content, { ephemeral, suggestion: user ? { userId: user, kind: 'tag' } : undefined });
+		prepareResponse(res, kind === 'haiku' ? blockQuote(content) : content, {
+			ephemeral,
+			suggestion: user ? { userId: user, kind } : undefined,
+		});
 	} else {
 		prepareErrorResponse(res, `Could not find a tag with name or alias similar to \`${trimmedQuery}\`.`);
 	}

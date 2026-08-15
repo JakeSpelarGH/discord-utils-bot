@@ -48,6 +48,7 @@ type CommandName =
 	| 'docs'
 	| 'dtypes'
 	| 'guide'
+	| 'haiku'
 	| 'mdn'
 	| 'node'
 	| 'reloadversions'
@@ -59,6 +60,7 @@ export async function handleApplicationCommand(
 	res: Response,
 	message: APIApplicationCommandInteraction,
 	tagCache: Collection<string, Tag>,
+	haikuCache: Collection<string, Tag>,
 ) {
 	const data = message.data;
 	if (data.type === ApplicationCommandType.ChatInput) {
@@ -129,7 +131,13 @@ export async function handleApplicationCommand(
 
 			case 'tag': {
 				const castArgs = args as ArgumentsOf<typeof TagCommand>;
-				showTag(res, castArgs.query, tagCache, castArgs.mention, castArgs.hide);
+				showTag(res, castArgs.query, tagCache, 'tag', castArgs.mention, castArgs.hide);
+				break;
+			}
+
+			case 'haiku': {
+				const castArgs = args as ArgumentsOf<typeof TagCommand>;
+				showTag(res, castArgs.query, haikuCache, 'haiku', castArgs.mention, castArgs.hide);
 				break;
 			}
 
@@ -141,7 +149,7 @@ export async function handleApplicationCommand(
 
 			case 'tagreload': {
 				const castArgs = args as ArgumentsOf<typeof TagReloadCommand>;
-				await reloadTags(res, tagCache, castArgs.remote ?? false);
+				await reloadTags(res, tagCache, haikuCache, castArgs.remote ?? false);
 				break;
 			}
 

@@ -33,6 +33,22 @@ Put your tag content here!
 - The repository includes vscode code-snippets for tags, "learn more" links, and an arrow character.
 - You can test tags through the bot (for example in our [discord server](https://discord.gg/djs)) with `/testtag`.
 
+# Contributing haiku
+
+```toml
+[haiku-name]
+keywords = ["haiku", "575"]
+content = """
+Hey! That's not haiku,
+You're just counting syllables!
+Stop that this instant!
+"""
+```
+
+- Haikus consist of three lines of 5, 7, and 5 syllables.
+- Haikus are just tags, all rules from above apply.
+- Make sure they're still useful. This is not a venue for being rude.
+
 # Setup
 
 > [!WARNING]

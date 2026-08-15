@@ -20,12 +20,22 @@ import type { MDNIndexEntry } from '../types/mdn.js';
 import { transformInteraction } from '../util/interactionOptions.js';
 import { logger } from '../util/logger.js';
 
-type CommandAutoCompleteName = 'discorddocs' | 'discordhelpdesk' | 'docs' | 'dtypes' | 'guide' | 'mdn' | 'node' | 'tag';
+type CommandAutoCompleteName =
+	| 'discorddocs'
+	| 'discordhelpdesk'
+	| 'docs'
+	| 'dtypes'
+	| 'guide'
+	| 'haiku'
+	| 'mdn'
+	| 'node'
+	| 'tag';
 
 export async function handleApplicationCommandAutocomplete(
 	res: Response,
 	message: APIApplicationCommandAutocompleteInteraction,
 	tagCache: Collection<string, Tag>,
+	haikuCache: Collection<string, Tag>,
 	mdnIndexCache: MDNIndexEntry[],
 ) {
 	const data = message.data;
@@ -47,6 +57,11 @@ export async function handleApplicationCommandAutocomplete(
 
 		case 'tag': {
 			tagAutoComplete(res, data.options, tagCache);
+			break;
+		}
+
+		case 'haiku': {
+			tagAutoComplete(res, data.options, haikuCache);
 			break;
 		}
 

@@ -76,9 +76,12 @@ async function verify(req: Request, res: Response, next: NextHandler) {
 }
 
 const tagCache = new Collection<string, Tag>();
+const haikuCache = new Collection<string, Tag>();
 const mdnIndexCache: MDNIndexEntry[] = [];
-await loadTags(tagCache);
+await loadTags(tagCache, 'tags');
+await loadTags(haikuCache, 'haikus');
 logger.info(`Tag cache loaded with ${tagCache.size} entries.`);
+logger.info(`Haiku cache loaded with ${haikuCache.size} entries.`);
 await reloadDjsVersions();
 
 export async function start() {
@@ -99,10 +102,10 @@ export async function start() {
 						prepareAck(res);
 						break;
 					case InteractionType.ApplicationCommand:
-						await handleApplicationCommand(res, message, tagCache);
+						await handleApplicationCommand(res, message, tagCache, haikuCache);
 						break;
 					case InteractionType.ApplicationCommandAutocomplete:
-						await handleApplicationCommandAutocomplete(res, message, tagCache, mdnIndexCache);
+						await handleApplicationCommandAutocomplete(res, message, tagCache, haikuCache, mdnIndexCache);
 						break;
 					case InteractionType.ModalSubmit:
 						await handleModalSubmit(res, message);
