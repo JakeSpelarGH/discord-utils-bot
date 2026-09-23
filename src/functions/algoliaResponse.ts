@@ -19,9 +19,12 @@ export async function algoliaResponse(
 	algoliaObjectId: string,
 	emojiId: string,
 	emojiName: string,
-	user?: string,
-	ephemeral?: boolean,
-	type = 'documentation',
+	{
+		user,
+		ephemeral,
+		type = 'documentation',
+		quiet,
+	}: { ephemeral?: boolean; quiet?: boolean; type?: string; user?: string },
 ): Promise<Response> {
 	const full = `http://${algoliaAppId}.${API_BASE_ALGOLIA}/1/indexes/${algoliaIndex}/${encodeURIComponent(
 		expandAlgoliaObjectId(algoliaObjectId),
@@ -36,13 +39,14 @@ export async function algoliaResponse(
 			},
 		}).then(async (res) => res.json())) as AlgoliaHit;
 
-		const contentParts = [`<:${emojiName}:${emojiId}>  ${hyperlink(bold(resolveHitToNamestring(hit)), hit.url)}`];
+		const header = `<:${emojiName}:${emojiId}>  ${hyperlink(bold(resolveHitToNamestring(hit)), hit.url)}`;
+		const contentParts = [header];
 
 		if (hit.content?.length) {
 			contentParts.push(`${truncate(decode(hit.content), 300)}`);
 		}
 
-		prepareResponse(res, contentParts.join('\n'), {
+		prepareResponse(res, quiet ? header : contentParts.join('\n'), {
 			ephemeral,
 			suggestion: user ? { userId: user, kind: type } : undefined,
 		});

@@ -76,21 +76,30 @@ export async function handleApplicationCommand(
 					break;
 				}
 
-				const { query, version, ephemeral, mention } = resolved;
-				await djsDocs(res, version, query, mention, ephemeral);
+				const { query, version, ephemeral, mention, quiet } = resolved;
+				await djsDocs(res, version, query, { ephemeral, quiet, user: mention });
 				break;
 			}
 
 			case 'discorddocs': {
 				const castArgs = args as ArgumentsOf<typeof DiscordDocsCommand>;
-				await mintlifyResponse(res, castArgs.query, castArgs.mention, castArgs.hide);
+				await mintlifyResponse(res, castArgs.query, {
+					user: castArgs.mention,
+					ephemeral: castArgs.hide,
+					quiet: castArgs.quiet,
+				});
 				break;
 			}
 
 			case 'discordhelpdesk': {
 				const castArgs = args as ArgumentsOf<typeof DiscordHelpdeskCommand>;
 				const sub = castArgs.general ?? castArgs.developer;
-				await helpdeskResponse(res, sub.query, Boolean(castArgs.developer), sub.mention, sub.hide);
+				await helpdeskResponse(res, sub.query, {
+					isDev: Boolean(castArgs.developer),
+					ephemeral: sub.hide,
+					quiet: sub.quiet,
+					user: sub.mention,
+				});
 				break;
 			}
 
@@ -104,8 +113,11 @@ export async function handleApplicationCommand(
 					castArgs.query,
 					EMOJI_ID_DTYPES,
 					'dtypes',
-					castArgs.mention,
-					castArgs.hide,
+					{
+						ephemeral: castArgs.hide,
+						user: castArgs.mention,
+						quiet: castArgs.quiet,
+					},
 				);
 
 				break;
@@ -113,19 +125,31 @@ export async function handleApplicationCommand(
 
 			case 'guide': {
 				const castArgs = args as ArgumentsOf<typeof GuideCommand>;
-				await oramaResponse(res, castArgs.query, castArgs.mention, castArgs.hide);
+				await oramaResponse(res, castArgs.query, {
+					user: castArgs.mention,
+					ephemeral: castArgs.hide,
+					quiet: castArgs.quiet,
+				});
 				break;
 			}
 
 			case 'mdn': {
 				const castArgs = args as ArgumentsOf<typeof MdnCommand>;
-				await mdnSearch(res, castArgs.query, castArgs.mention, castArgs.hide);
+				await mdnSearch(res, castArgs.query, {
+					user: castArgs.mention,
+					ephemeral: castArgs.hide,
+					quiet: castArgs.quiet,
+				});
 				break;
 			}
 
 			case 'node': {
 				const castArgs = args as ArgumentsOf<typeof NodeCommand>;
-				await nodeAutoCompleteResolve(res, castArgs.query, castArgs.mention, castArgs.hide);
+				await nodeAutoCompleteResolve(res, castArgs.query, {
+					user: castArgs.mention,
+					ephemeral: castArgs.hide,
+					quiet: castArgs.quiet,
+				});
 				break;
 			}
 

@@ -46,6 +46,12 @@ export async function buildDocsCommand(versions: DjsVersions) {
 				description: 'User to mention',
 				required: false,
 			},
+			{
+				type: ApplicationCommandOptionType.Boolean,
+				name: 'quiet',
+				description: 'Just send the link without the noise',
+				required: false,
+			},
 		],
 	} as const;
 }

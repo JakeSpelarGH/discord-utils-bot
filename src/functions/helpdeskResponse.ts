@@ -69,10 +69,19 @@ const partPredicate = (part: SectionPart) =>
 export async function helpdeskResponse(
 	res: Response,
 	query: string,
-	isDev?: boolean,
-	user?: string,
-	ephemeral?: boolean,
-	secondAttempt = false,
+	{
+		isDev,
+		user,
+		ephemeral,
+		quiet,
+		secondAttempt,
+	}: {
+		ephemeral?: boolean;
+		isDev?: boolean;
+		quiet?: boolean;
+		secondAttempt?: boolean;
+		user?: string;
+	},
 ) {
 	const [articleId, timestampString, ...originalQueryParts] = query.split(DJS_QUERY_SEPARATOR);
 	const originalQuery = originalQueryParts.join(DJS_QUERY_SEPARATOR);
@@ -91,7 +100,13 @@ export async function helpdeskResponse(
 			return res;
 		}
 
-		return helpdeskResponse(res, zendeskAutocompleteValue(article, articleId), isDev, user, ephemeral, true);
+		return helpdeskResponse(res, zendeskAutocompleteValue(article, articleId), {
+			user,
+			ephemeral,
+			quiet,
+			isDev,
+			secondAttempt: true,
+		});
 	}
 
 	const timestamp = Number.parseInt(timestampString, 10);
@@ -129,7 +144,7 @@ export async function helpdeskResponse(
 		partPredicate,
 	});
 
-	prepareResponse(res, `${headline}\n${result}${shouldTail ? ` ${tail}` : ''}`, {
+	prepareResponse(res, quiet ? headline : `${headline}\n${result}${shouldTail ? ` ${tail}` : ''}`, {
 		ephemeral,
 		suggestion: user ? { userId: user, kind: 'article' } : undefined,
 	});

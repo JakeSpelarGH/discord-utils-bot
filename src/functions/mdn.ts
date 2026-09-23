@@ -1,4 +1,4 @@
-import { bold, hideLinkEmbed, hyperlink, inlineCode, italic, underscore, userMention } from '@discordjs/builders';
+import { bold, hideLinkEmbed, hyperlink, inlineCode, underline } from '@discordjs/builders';
 import type { Response } from 'polka';
 import { fetch } from 'undici';
 import { API_BASE_MDN, EMOJI_ID_MDN } from '../util/constants.js';
@@ -11,7 +11,11 @@ function escape(text: string) {
 	return text.replaceAll('||', '|\u200B|').replaceAll('*', '\\*');
 }
 
-export async function mdnSearch(res: Response, query: string, user?: string, ephemeral?: boolean): Promise<Response> {
+export async function mdnSearch(
+	res: Response,
+	query: string,
+	{ user, ephemeral, quiet }: { ephemeral?: boolean; quiet?: boolean; user?: string },
+): Promise<Response> {
 	const trimmedQuery = query.trim();
 	try {
 		const qString = `${API_BASE_MDN}/${trimmedQuery}/index.json`;
@@ -36,12 +40,10 @@ export async function mdnSearch(res: Response, query: string, user?: string, eph
 			.replaceAll(linkReplaceRegex, hyperlink('$1', hideLinkEmbed(`${API_BASE_MDN}$2`)))
 			.replaceAll(boldCodeBlockRegex, bold(inlineCode('$1')));
 
-		const parts = [
-			`<:mdn:${EMOJI_ID_MDN}>  ${underscore(bold(hyperlink(escape(hit.title), hideLinkEmbed(url))))}`,
-			intro,
-		];
+		const header = `<:mdn:${EMOJI_ID_MDN}>  ${underline(bold(hyperlink(escape(hit.title), hideLinkEmbed(url))))}`;
+		const parts = [header, intro];
 
-		prepareResponse(res, parts.join('\n'), {
+		prepareResponse(res, quiet ? header : parts.join('\n'), {
 			ephemeral,
 			suggestion: user ? { userId: user, kind: 'documentation' } : undefined,
 		});

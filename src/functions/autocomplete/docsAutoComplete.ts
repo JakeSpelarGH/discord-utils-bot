@@ -299,6 +299,7 @@ type DocsAutoCompleteData = {
 	ephemeral?: boolean;
 	mention?: string;
 	query: string;
+	quiet?: boolean;
 	source: string;
 	version: string;
 };
@@ -316,6 +317,7 @@ export async function resolveOptionsToDocsAutoComplete(
 	let version = getCurrentMainPackageVersion();
 	let ephemeral = false;
 	let mention;
+	let quiet = false;
 	let source = 'discord.js';
 
 	for (const opt of options) {
@@ -341,6 +343,8 @@ export async function resolveOptionsToDocsAutoComplete(
 			}
 		} else if (opt.type === ApplicationCommandOptionType.Boolean && opt.name === 'hide') {
 			ephemeral = opt.value;
+		} else if (opt.type === ApplicationCommandOptionType.Boolean && opt.name === 'quiet') {
+			quiet = opt.value;
 		} else if (opt.type === ApplicationCommandOptionType.User && opt.name === 'mention') {
 			mention = opt.value;
 		}
@@ -361,5 +365,6 @@ export async function resolveOptionsToDocsAutoComplete(
 		ephemeral,
 		version,
 		mention,
+		quiet,
 	};
 }

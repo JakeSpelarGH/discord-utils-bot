@@ -261,9 +261,10 @@ function formatSourceURL(item: any, _package: string, version: string) {
  * @param _package - The package name of the packge the item belongs to
  * @param version - The version of the package the item belongs to
  * @param member - The specific item member to access, if any
+ * @param quiet - Just the header without summary
  * @returns The formatted documentation string for the provided item
  */
-function formatItem(_item: any, _package: string, version: string, member?: string) {
+function formatItem(_item: any, _package: string, version: string, member?: string, quiet = false) {
 	const itemLink = docsLink(_item, _package, version, member);
 	const item = effectiveItem(_item, member);
 
@@ -286,6 +287,10 @@ function formatItem(_item: any, _package: string, version: string, member?: stri
 	const middlePart = item.isDeprecated ? strikethrough(parts.join(' ')) : parts.join(' ');
 
 	const lines: string[] = [[head, middlePart, tail].join(' ')];
+
+	if (quiet) {
+		return lines.join('\n');
+	}
 
 	const summary = item.summary?.summarySection;
 	const defaultValueBlock = item.summary?.defaultValueBlock;
@@ -312,7 +317,12 @@ function formatItem(_item: any, _package: string, version: string, member?: stri
 	return lines.join('\n');
 }
 
-export async function djsDocs(res: Response, version: string, query: string, user?: string, ephemeral?: boolean) {
+export async function djsDocs(
+	res: Response,
+	version: string,
+	query: string,
+	{ user, ephemeral, quiet }: { ephemeral?: boolean; quiet?: boolean; user?: string },
+) {
 	try {
 		if (!query) {
 			prepareErrorResponse(res, 'Cannot find any hits for the provided query - consider using auto complete.');
@@ -340,7 +350,7 @@ export async function djsDocs(res: Response, version: string, query: string, use
 			return res.end();
 		}
 
-		prepareResponse(res, truncate(formatItem(item, _package, version, member), MAX_MESSAGE_LENGTH), {
+		prepareResponse(res, truncate(formatItem(item, _package, version, member, quiet), MAX_MESSAGE_LENGTH), {
 			ephemeral,
 			suggestion: user ? { userId: user, kind: 'documentation' } : undefined,
 		});

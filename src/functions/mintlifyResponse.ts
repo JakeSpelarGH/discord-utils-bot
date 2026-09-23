@@ -26,8 +26,7 @@ export async function fallbackResult(query: string) {
 export async function mintlifyResponse(
 	res: Response,
 	query: string,
-	user?: string,
-	ephemeral?: boolean,
+	{ user, ephemeral, quiet }: { ephemeral?: boolean; quiet?: boolean; user?: string },
 ): Promise<Response> {
 	const hit = discordDocsResultCache.get(query) ?? (await fallbackResult(query));
 
@@ -62,7 +61,10 @@ export async function mintlifyResponse(
 
 	prepareResponse(
 		res,
-		truncate(`${headline}\n${result}${shouldTail && result.length ? ` ${tail}` : ''}`, MAX_MESSAGE_LENGTH),
+		truncate(
+			quiet ? headline : `${headline}\n${result}${shouldTail && result.length ? ` ${tail}` : ''}`,
+			MAX_MESSAGE_LENGTH,
+		),
 		{
 			ephemeral,
 			suggestion: user ? { userId: user, kind: 'documentation' } : undefined,

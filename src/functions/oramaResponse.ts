@@ -43,7 +43,11 @@ async function getPage(url: string) {
 	return page;
 }
 
-export async function oramaResponse(res: Response, resultUrl: string, user?: string, ephemeral?: boolean) {
+export async function oramaResponse(
+	res: Response,
+	resultUrl: string,
+	{ user, ephemeral, quiet }: { ephemeral?: boolean; quiet?: boolean; user?: string },
+) {
 	const parsed = resolveResourceFromGuideUrl(resultUrl);
 	const contentParts: string[] = [];
 
@@ -66,7 +70,9 @@ export async function oramaResponse(res: Response, resultUrl: string, user?: str
 	const section = findRelevantDocsSection(sections, anchor, !parsed.anchor);
 
 	const title = section?.headline ?? parsed.endpoint ?? 'discord.js guide';
-	contentParts.push(`<:guide:${EMOJI_ID_GUIDE}> ${hyperlink(bold(title), parsed.guideUrl)}`);
+	const header = `<:guide:${EMOJI_ID_GUIDE}> ${hyperlink(bold(title), parsed.guideUrl)}`;
+
+	contentParts.push(header);
 
 	const relevantLines =
 		section?.parts.filter((part) => part.type === SectionPartType.Text).map((part) => sectionPartToText(part)) ?? [];
@@ -91,7 +97,7 @@ export async function oramaResponse(res: Response, resultUrl: string, user?: str
 		}
 	}
 
-	prepareResponse(res, contentParts.join('\n'), {
+	prepareResponse(res, quiet ? header : contentParts.join('\n'), {
 		ephemeral,
 		suggestion: user ? { userId: user, kind: 'guide' } : undefined,
 	});

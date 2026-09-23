@@ -73,7 +73,11 @@ function docsUrl(version: string, source: string, anchorTextRaw: string) {
 const jsonCache: Map<string, NodeDocs> = new Map();
 const docsCache: Map<string, string> = new Map();
 
-export async function nodeAutoCompleteResolve(res: Response, query: string, user?: string, ephemeral?: boolean) {
+export async function nodeAutoCompleteResolve(
+	res: Response,
+	query: string,
+	{ user, ephemeral, quiet }: { ephemeral?: boolean; quiet?: boolean; user?: string },
+) {
 	const url = urlOption(`${API_BASE_NODE}/${query}`);
 
 	if (!url || !query.startsWith('docs')) {
@@ -107,16 +111,15 @@ export async function nodeAutoCompleteResolve(res: Response, query: string, user
 	const sentence = text.split(/[!.?](\s|$)/)?.[0];
 	const effectiveSentence = (sentence ?? truncate(text, AUTOCOMPLETE_MAX_NAME_LENGTH, '')).trim();
 
-	const contentParts = [
-		// eslint-disable-next-line @typescript-eslint/no-base-to-string
-		`<:node:${EMOJI_ID_NODE}> ${hyperlink(inlineCode(headingCode.length ? headingCode : heading), url.toString())}`,
-	];
+	// eslint-disable-next-line @typescript-eslint/no-base-to-string
+	const header = `<:node:${EMOJI_ID_NODE}> ${hyperlink(inlineCode(headingCode.length ? headingCode : heading), url.toString())}`;
+	const contentParts = [header];
 
 	if (effectiveSentence.length) {
 		contentParts.push(`${effectiveSentence}.`);
 	}
 
-	prepareResponse(res, contentParts.join('\n'), {
+	prepareResponse(res, quiet ? header : contentParts.join('\n'), {
 		ephemeral,
 		suggestion: user ? { userId: user, kind: 'documentation' } : undefined,
 	});
